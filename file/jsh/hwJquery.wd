@@ -1,0 +1,8 @@
+# jQuery 查詢與操作
+
+* 挑戰 人與電腦對戰井字遊戲
+* 習題 為五子棋加上輸贏判斷
+* 挑戰 人與電腦對戰五子棋
+ * 請參考 [人工智慧實作：五子棋程式](http://ccc.nqu.edu.tw/db/ai/chess_gomoku.html) 並將之融入本章《五子棋》的網頁程式中，做出可以人機對戰的五子棋版本。記得加入輸贏檢查判斷！
+* 專案 [英文單字測驗系統](https://ccc.nqu.edu.tw/web/elearn/elearn.html)
+* 專案 [線上英翻中系統](https://ccc.nqu.edu.tw/web/elearn/mt.html)
