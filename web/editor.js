@@ -17,7 +17,7 @@ E.init = function() {
 E.isLogin = function() {
   if (localStorage.wd_login !== "true") { // 注意：sessionStorage 不能跨頁面持續，所以得用 localStorage
     alert('You can not save & edit before login. Please login now !');
-    E.login();
+    E.Server.login();
     return false;
   }
   return true;
@@ -28,6 +28,7 @@ E.Server = {
 };
 
 E.Server.save=function(path, text) {
+	console.log("save");
   $.ajax({
     type: "POST",
     url: "/file/"+path,
@@ -41,10 +42,11 @@ E.Server.save=function(path, text) {
     }
   })
   .done(function(data) {
-    alert( "Save success!");
+		console.log("save success");
+    alert("Save success!");
   })
   .fail(function() {
-    alert( "Save fail!" );
+    alert("Save fail!");
   });
 }
 
@@ -115,10 +117,10 @@ E.upload=function() {
   if (!E.isLogin()) return;
   E.switchPanel('panelUpload');
   $("#imageUpload").fileinput({
-    uploadUrl: "/upload/"+path,
+    uploadUrl: "/upload/"+E.path,
     maxFileCount: 10,
     uploadAsync: false,
-    uploadExtraData: { path: path }
+    uploadExtraData: { path: E.path }
   });
 }
 
