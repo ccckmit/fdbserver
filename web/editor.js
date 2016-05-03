@@ -5,7 +5,6 @@ var E = {
 }
 
 E.init = function() {
-//	console.log('E.init()');
 	$('.panel').css( "display", "none");
   E.onhashchange();
   if (window.location.protocol === 'https:') {
@@ -15,7 +14,8 @@ E.init = function() {
 }
 
 E.isLogin = function() {
-  if (localStorage.wd_login !== "true") { // 注意：sessionStorage 不能跨頁面持續，所以得用 localStorage
+  if (localStorage.wd_login !== "true") { 
+	  // 注意：sessionStorage 不能跨頁面持續，所以得用 localStorage
     alert('You can not save & edit before login. Please login now !');
     E.Server.login();
     return false;
@@ -141,7 +141,11 @@ E.show=function() {
 		content = editText;
 	}
 	var html = E.render(content);
+	// http://stackoverflow.com/questions/12449890/reload-content-in-modal-twitter-bootstrap
+//	$('#htmlBox').html(html);
+	
 	$('#htmlBox').html(html);
+//	$("#htmlBox").modal("show"); 
 	$("#htmlBox").animate({ scrollTop: 0 }, "fast");		
   E.switchPanel('panelShow');
 }
@@ -151,14 +155,14 @@ E.render=function(content) {
 		return "<pre>\n"+content+"</pre>\n";
 	} else if (content.type==="directory"){
 		var files = content.files;
-		var html = "<UL>";
+		var html = "<UL>\n";
 		var path = E.path;
 		if (!path.endsWith("/")) path=path+"/";
 		for (var i=0; i<files.length; i++) {
-			html += "<LI><a href='#"+path+files[i]+"\'>"+files[i]+"</a></LI>";
+			var rewritePath = path;
+			html += "<LI><a href='#"+rewritePath+files[i]+"\'>"+files[i]+"</a></LI>\n";
 		}
-		html += "</UL>";
-//		console.log("html=", html);
+		html += "</UL>\n";
 		return html;
 	}	
 }
