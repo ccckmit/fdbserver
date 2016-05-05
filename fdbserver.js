@@ -17,8 +17,7 @@ var mongodb = require('mongodb');
 var app = koa();
 
 var routeMap = {
-  coderoot:path.join(__dirname, ''),
-	web:path.join(__dirname, 'web'),
+	web:path.join(process.cwd(), 'web'),
   file:path.join(process.cwd(), 'file'),
   cwd:process.cwd(),
 };
@@ -32,7 +31,7 @@ function comkdir(path) {
 function loadSysFile(file) {
 	var filepath = path.join(routeMap.cwd, file);
 	if (!mzfs.existsSync(filepath)) {
-		filepath = path.join(routeMap.coderoot, file);
+		filepath = path.join(__dirname, file);
 	}
 	return mzfs.readFileSync(filepath, 'utf-8');
 }
