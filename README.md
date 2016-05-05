@@ -8,7 +8,7 @@ File + Database (Mongodb) Server based on Koa
 ## Install
 
 ```
-$ npm install -g fdbserver
+$ npm install fdbserver
 ```
 
 ## Use
@@ -16,7 +16,7 @@ $ npm install -g fdbserver
 file: main.js
 
 ```
-var server = require("./fdbserver");
+var server = require("fdbserver");
 
 server.run();
 ```
