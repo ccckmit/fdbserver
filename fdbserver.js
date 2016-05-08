@@ -13,14 +13,7 @@ var co      = require('co');
 var parse   = require('co-busboy');
 var saveTo  = require('save-to');
 var mongodb = require('mongodb');
-// var setting = require('./setting');
 var app = koa();
-
-var routeMap = {
-	web:path.join(process.cwd(), 'web'),
-  file:path.join(process.cwd(), 'file'),
-  cwd:process.cwd(),
-};
 
 function comkdir(path) {
   return function (callback) {
@@ -29,7 +22,7 @@ function comkdir(path) {
 }
 
 function loadSysFile(file) {
-	var filepath = path.join(routeMap.cwd, file);
+	var filepath = path.join(process.cwd(), file);
 	if (!mzfs.existsSync(filepath)) {
 		filepath = path.join(__dirname, file);
 	}
@@ -63,13 +56,13 @@ mongodb.MongoClient.connect(setting.mongodb.dburl, function(err, db1){
 var fdbserver = {
 	app:app,
 	router:router,
-	routeMap:routeMap,
 	loadSysFile:loadSysFile,
 	run:function() { this.app.run(); }
 }
 
-if (!fs.existsSync(routeMap.file)) {
-	fs.mkdir(routeMap.file+"/");	
+var filedir = process.cwd()+"/file/";
+if (!fs.existsSync(filedir)) {
+	fs.mkdir(filedir);	
 }
 
 app.keys = [setting.key];
@@ -131,7 +124,7 @@ router
   var files = [], file;
   while (part = yield parts) {
     if (typeof part.filename !== 'undefined') {
-      files.push(file = path.join(routeMap.file, domain, part.filename));
+      files.push(file = path.join(filedir, domain, part.filename));
       yield saveTo(part, file);
     }
   }
@@ -164,7 +157,6 @@ router
  }) 
  .post(/\/file\/.*/, function*(next) {
   var req = this.request, res = this.response;
-//	var domain = this.params.domain, file=this.params.file;
   var text = this.request.body.text;
   if (!isPass(this)) {
     response(res, 401, 'Please login to save!');
@@ -174,8 +166,8 @@ router
 	var dir = this.path.split("/");
 	dir.pop();
 	console.log(" dir=", dir);
-	yield comkdir(routeMap.cwd+dir.join("/"));
-  yield mzfs.writeFile(routeMap.cwd+this.path, text).then(function() {
+	yield comkdir(process.cwd()+dir.join("/"));
+  yield mzfs.writeFile(process.cwd()+this.path, text).then(function() {
     response(res, 200, 'write success!');
   }).catch(function() {
     response(res, 403, 'write fail!'); // 403: Forbidden
@@ -188,13 +180,11 @@ router
 	if (yield fdbserver.doBeforeFileGet(this.path, this))
 		return;
 	console.log('get %s', this.path);
-	var root = this.path.startsWith("/file/")?routeMap.cwd:routeMap.web;
+	var root = process.cwd();
 	var tpath = path.join(root, this.path);
 	var tstat = yield mzfs.stat(tpath);
-//	console.log('tstat=%j', tstat);
 	if (tstat.isDirectory()) {
 		var files = yield mzfs.readdir(tpath);
-//	  console.log('files=%j', files);
 		this.type = 'json';
 		this.body = {type:"directory", "files":files};
 	} else if (tstat.isFile()) {
@@ -231,22 +221,3 @@ if (!module.parent) {
   app.run();
   console.log('app running');
 }
-
-/*
- .post('/file/:domain/:file', function*(next) {
-  var req = this.request, res = this.response;
-	var domain = this.params.domain, file=this.params.file;
-  var text = this.request.body.text;
-  if (!isPass(this)) {
-    response(res, 401, 'Please login to save!');
-    return;
-  }
-  console.log('post %s:%s', domain, file)
-  yield mzfs.mkdir(routeMap.file+"/"+domain+"/").catch(function(){});
-  yield mzfs.writeFile(routeMap.file+"/"+domain+"/"+file, text).then(function() {
-    response(res, 200, 'write success!');
-  }).catch(function() {
-    response(res, 403, 'write fail!'); // 403: Forbidden
-  });
- })
-*/
