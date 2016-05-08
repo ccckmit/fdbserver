@@ -179,6 +179,8 @@ router
 	}
 	if (yield fdbserver.doBeforeFileGet(this.path, this))
 		return;
+	if (this.path==="/")
+		this.redirect(setting.redirect);
 	console.log('get %s', this.path);
 	var root = process.cwd();
 	var tpath = path.join(root, this.path);

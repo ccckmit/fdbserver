@@ -6,6 +6,7 @@
   	  "root":"123"
 	},
 	"key":"@#$TYHaadfa1",
+	"redirect":"/main.html",
 	"mongodb":{
 		"dburl":"mongodb://localhost:27017/fdbserver"
 	}
