@@ -1,6 +1,6 @@
 {
   "name": "fdbserver",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "File & Database Web Server",
   "main": "fdbserver",
   "dependencies": {
