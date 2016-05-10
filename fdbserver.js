@@ -16,6 +16,9 @@ var mongodb = require('mongodb');
 var app = koa();
 
 function comkdir(path) {
+	var dir = path.split("/");
+	dir.pop();
+	console.log("comkdir=", dir);
   return function (callback) {
     mkdirp(path, callback);
   };
@@ -77,7 +80,15 @@ function response(res, code, msg) {
 }
 
 fdbserver.response = response;
-fdbserver.doBeforeFileGet=function*(path, self) { return false; }
+
+fdbserver.doAfterFilePost=function*(path, self) { 
+	yield Promise.resolve(false);
+}
+
+fdbserver.doBeforeFileGet=function*(path, self) {
+	// yield false; 在 co 裡面，這會導致錯誤 : TypeError: You may only yield a function, promise, generator, array, or object
+	yield Promise.resolve(false);
+}
 
 function isPass(req) {
   if (setting.loginToSave === false) 
@@ -163,21 +174,19 @@ router
     return;
   }
   console.log('post %s', this.path)
-	var dir = this.path.split("/");
-	dir.pop();
-	console.log(" dir=", dir);
-	yield comkdir(process.cwd()+dir.join("/"));
+	yield comkdir(this.path);
   yield mzfs.writeFile(process.cwd()+this.path, text).then(function() {
     response(res, 200, 'write success!');
   }).catch(function() {
     response(res, 403, 'write fail!'); // 403: Forbidden
   });
+	fdbserver.doAfterFilePost(this.path, this)
  })
  .get(/.*/, function *(next) {
 	if (db.db) {
 		yield db.table('filelog').insert({path:this.path, time:new Date()});
 	}
-	if (yield fdbserver.doBeforeFileGet(this.path, this))
+	if (yield *fdbserver.doBeforeFileGet(this.path, this))
 		return;
 	if (this.path==="/")
 		this.redirect(setting.redirect);
