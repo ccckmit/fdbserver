@@ -18,9 +18,8 @@ var app = koa();
 function comkdir(path) {
 	var dir = path.split("/");
 	dir.pop();
-	console.log("comkdir=", dir);
   return function (callback) {
-    mkdirp(path, callback);
+    mkdirp(dir.join("/"), callback);
   };
 }
 
@@ -174,8 +173,9 @@ router
     return;
   }
   console.log('post %s', this.path)
-	yield comkdir(this.path);
-  yield mzfs.writeFile(process.cwd()+this.path, text).then(function() {
+	var absPath = process.cwd()+this.path;
+	yield comkdir(absPath);
+  yield mzfs.writeFile(absPath, text).then(function() {
     response(res, 200, 'write success!');
   }).catch(function() {
     response(res, 403, 'write fail!'); // 403: Forbidden
@@ -183,7 +183,6 @@ router
 	fdbserver.doAfterFilePost(this.path, this)
  })
  .get(/.*/, function *(next) {
-	if (this.path==="/setting.json") return;	 
 	if (db.db) {
 		yield db.table('filelog').insert({path:this.path, time:new Date()});
 	}
