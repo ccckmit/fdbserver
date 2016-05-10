@@ -183,6 +183,7 @@ router
 	fdbserver.doAfterFilePost(this.path, this)
  })
  .get(/.*/, function *(next) {
+	if (this.path==="/setting.json") return;	 
 	if (db.db) {
 		yield db.table('filelog').insert({path:this.path, time:new Date()});
 	}
