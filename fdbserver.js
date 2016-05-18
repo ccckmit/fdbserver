@@ -47,6 +47,9 @@ db.table=function(tableName) {
 	return table;
 }
 
+console.log("mongoClient=", mongodb.MongoClient);
+console.log("setting.mongodb.dburl=", setting.mongodb.dburl);
+
 mongodb.MongoClient.connect(setting.mongodb.dburl, function(err, db1){
 	if (err) 
 		console.error("db connect fail");
@@ -81,6 +84,10 @@ function response(res, code, msg) {
 fdbserver.response = response;
 
 fdbserver.doAfterFilePost=function*(path, self) { 
+	yield Promise.resolve(false);
+}
+
+fdbserver.doAfterPostDb=function*(table, op, body) {
 	yield Promise.resolve(false);
 }
 
@@ -123,7 +130,7 @@ var dbOp=function*(table, op, body, self) {
 	} else {
 		response(res, 404, 'db error');
 	}
-	fdbserver.doAfterPostDb(table, op, body);
+	yield* fdbserver.doAfterPostDb(table, op, body);
 }
 
 router
@@ -180,7 +187,7 @@ router
   }).catch(function() {
     response(res, 403, 'write fail!'); // 403: Forbidden
   });
-	fdbserver.doAfterFilePost(this.path, this)
+	yield* fdbserver.doAfterFilePost(this.path, this)
  })
  .get(/.*/, function *(next) {
 	if (db.db) {
